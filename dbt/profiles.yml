@@ -1,0 +1,23 @@
+dbt_proj:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: SF_ACCOUNT
+      role: SF_ROLE
+      database: SF_DATABASE
+      warehouse: SF_WAREHOUSE
+      user: SF_USERNAME
+      password: SF_PASSWORD
+      schema: DEV
+      threads: 8
+    prod:
+      type: snowflake
+      account: SF_ACCOUNT
+      role: SF_ROLE
+      database: SF_DATABASE
+      warehouse: SF_WAREHOUSE
+      user: SF_USERNAME
+      password: SF_PASSWORD
+      schema: PROD
+      threads: 8

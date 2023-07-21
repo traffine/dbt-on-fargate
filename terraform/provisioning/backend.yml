@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: S3 Bucket and DynamoDB for Terraform state files.
+Parameters:
+  S3BucketName: # tfstateファイルを保持するためのS3バケット名
+    Type: String
+    Description: Bucket name
+    MinLength: 3
+    MaxLength: 63
+    AllowedPattern: '[a-z0-9][a-zA-Z0-9.-]+'
+  DynamoDBTableName: # ロック管理用のDynamoDBテーブル名
+    Type: String
+    Description: Table name
+    MinLength: 3
+    MaxLength: 63
+    AllowedPattern: '[a-zA-Z0-9][a-zA-Z0-9.-]+'
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Ref: S3BucketName
+      VersioningConfiguration: # 過去のtfstateファイルをVersioningで保持する
+        Status: Enabled
+      Tags:
+        - Key: Name
+          Value: !Sub |-
+            Terraform backend S3 bucket for ${AWS::AccountId} by ${AWS::StackName}.
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName:
+        Ref: DynamoDBTableName
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: # ロック用列名(Terraformで決まっているので変更不可)
+        - AttributeName: 'LockID'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'LockID'
+          KeyType: 'HASH'
+
+Outputs:
+  TFBackendS3Bucket:
+    Value: !Ref S3Bucket
+  TFBackendDynamoDBTable:
+    Value: !Ref DynamoDBTable
